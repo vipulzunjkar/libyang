@@ -8398,6 +8398,9 @@ finish:
 int
 lyxp_node_atomize(const struct lys_node *node, struct lyxp_set *set, int set_ext_dep_flags)
 {
+	/* TEMPORARY DISABLE IN YDK parsing of 'when' and 'must' statements */
+	return EXIT_SUCCESS;
+
     struct lys_node *parent, *elem;
     const struct lys_node *ctx_snode;
     struct lyxp_set tmp_set;
@@ -8564,7 +8567,8 @@ finish:
 int
 lyxp_node_check_syntax(const struct lys_node *node)
 {
-	return 0; /* TEMPORARY DISABLED IN YDK */
+	/* TEMPORARY DISABLE IN YDK parsing of 'when' and 'must' statements */
+	return EXIT_SUCCESS;
 
     uint8_t must_size = 0;
     uint16_t exp_idx;
