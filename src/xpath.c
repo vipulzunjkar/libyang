@@ -8564,6 +8564,8 @@ finish:
 int
 lyxp_node_check_syntax(const struct lys_node *node)
 {
+	return 0; /* TEMPORARY DISABLED IN YDK */
+
     uint8_t must_size = 0;
     uint16_t exp_idx;
     uint32_t i;
