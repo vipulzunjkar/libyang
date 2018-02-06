@@ -8398,9 +8398,6 @@ finish:
 int
 lyxp_node_atomize(const struct lys_node *node, struct lyxp_set *set, int set_ext_dep_flags)
 {
-	/* TEMPORARY DISABLE IN YDK parsing of 'when' and 'must' statements */
-	return EXIT_SUCCESS;
-
     struct lys_node *parent, *elem;
     const struct lys_node *ctx_snode;
     struct lyxp_set tmp_set;
@@ -8421,6 +8418,7 @@ lyxp_node_atomize(const struct lys_node *node, struct lyxp_set *set, int set_ext
         opts |= LYXP_SNODE_OUTPUT;
     }
 
+    /* TEMPORARY DISABLE IN YDK parsing of 'when' and 'must' statements
     switch (node->nodetype) {
     case LYS_CONTAINER:
         when = ((struct lys_node_container *)node)->when;
@@ -8470,9 +8468,8 @@ lyxp_node_atomize(const struct lys_node *node, struct lyxp_set *set, int set_ext
         when = ((struct lys_node_augment *)node)->when;
         break;
     default:
-        /* nothing to check */
         break;
-    }
+    } */
 
     if (set_ext_dep_flags) {
         /* find operation if in one, used later */
@@ -8567,8 +8564,8 @@ finish:
 int
 lyxp_node_check_syntax(const struct lys_node *node)
 {
-	/* TEMPORARY DISABLE IN YDK parsing of 'when' and 'must' statements */
-	return EXIT_SUCCESS;
+    /* TEMPORARY DISABLE IN YDK parsing of 'when' and 'must' statements */
+    return EXIT_SUCCESS;
 
     uint8_t must_size = 0;
     uint16_t exp_idx;
