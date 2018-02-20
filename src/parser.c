@@ -3276,8 +3276,10 @@ lyp_rfn_apply_ext(struct lys_module *module)
                     if (!target) {
                         /* it should always succeed since the target_name was already resolved at least
                          * once when the refine itself was being resolved */
-                        LOGINT;
-                        return EXIT_FAILURE;
+                        // YDK temporary workaround
+                        //LOGINT;
+                        //return EXIT_FAILURE;
+                        continue;
                     }
 
                     /* extensions */
