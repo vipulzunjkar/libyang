@@ -33,7 +33,7 @@ endforeach(test_name)
 
 # Set common attributes of all tests
 foreach(test_name IN LISTS api_tests data_tests schema_yin_tests schema_tests conformance_tests)
-    target_link_libraries(${test_name} ${CMOCKA_LIBRARIES} yang)
+    target_link_libraries(${test_name} ${CMOCKA_LIBRARIES} yang_static)
     add_test(NAME ${test_name} COMMAND $<TARGET_FILE:${test_name}>)
     set_property(TEST ${test_name} PROPERTY ENVIRONMENT "LIBYANG_EXTENSIONS_PLUGINS_DIR=${CMAKE_BINARY_DIR}/src/extensions")
     set_property(TEST ${test_name} APPEND PROPERTY ENVIRONMENT "MALLOC_CHECK_=3")
