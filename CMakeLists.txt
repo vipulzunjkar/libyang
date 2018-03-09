@@ -207,6 +207,8 @@ set(headers
     src/xml.h
     src/dict.h)
 
+find_package(PCRE REQUIRED)
+find_package(Threads REQUIRED)
 # create static libyang library
 set(CMAKE_POSITION_INDEPENDENT_CODE TRUE)
 if(STATIC)
@@ -216,30 +218,29 @@ if(STATIC)
     target_link_libraries(yang_static ${CMAKE_THREAD_LIBS_INIT})
     target_link_libraries(yang_static ${PCRE_LIBRARIES})
     install(TARGETS yang_static DESTINATION ${CMAKE_INSTALL_LIBDIR})
+else(STATIC)
+    add_library(yangobj OBJECT ${libsrc})
+    add_library(yang SHARED $<TARGET_OBJECTS:yangobj>)
+    set_target_properties(yang PROPERTIES VERSION ${LIBYANG_VERSION} SOVERSION ${LIBYANG_SOVERSION})
+    set_target_properties(yang PROPERTIES COMPILE_FLAGS "-fvisibility=hidden")
+
+    # link math
+    target_link_libraries(yang m)
+
+    #link dl
+    target_link_libraries(yang ${CMAKE_DL_LIBS})
+
+    # find pthreads
+    set(CMAKE_THREAD_PREFER_PTHREAD TRUE)
+    target_link_libraries(yang ${CMAKE_THREAD_LIBS_INIT})
+
+    # find PCRE library
+    include_directories(${PCRE_INCLUDE_DIRS})
+    target_link_libraries(yang ${PCRE_LIBRARIES})
+
+    install(TARGETS yang DESTINATION ${CMAKE_INSTALL_LIBDIR})
 endif(STATIC)
 
-add_library(yangobj OBJECT ${libsrc})
-add_library(yang SHARED $<TARGET_OBJECTS:yangobj>)
-set_target_properties(yang PROPERTIES VERSION ${LIBYANG_VERSION} SOVERSION ${LIBYANG_SOVERSION})
-set_target_properties(yang PROPERTIES COMPILE_FLAGS "-fvisibility=hidden")
-
-# link math
-target_link_libraries(yang m)
-
-#link dl
-target_link_libraries(yang ${CMAKE_DL_LIBS})
-
-# find pthreads
-set(CMAKE_THREAD_PREFER_PTHREAD TRUE)
-find_package(Threads REQUIRED)
-target_link_libraries(yang ${CMAKE_THREAD_LIBS_INIT})
-
-# find PCRE library
-find_package(PCRE REQUIRED)
-include_directories(${PCRE_INCLUDE_DIRS})
-target_link_libraries(yang ${PCRE_LIBRARIES})
-
-install(TARGETS yang DESTINATION ${CMAKE_INSTALL_LIBDIR})
 install(FILES ${headers} ${PROJECT_BINARY_DIR}/src/libyang.h DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/libyang)
 
 find_package(PkgConfig)
@@ -280,13 +281,13 @@ add_subdirectory(src/extensions)
 
 # yanglint
 add_executable(yanglint ${lintsrc})
-target_link_libraries(yanglint yang)
+target_link_libraries(yanglint yang_static  ${CMAKE_THREAD_LIBS_INIT} ${PCRE_LIBRARIES}  ${CMAKE_DL_LIBS})
 install(TARGETS yanglint DESTINATION ${CMAKE_INSTALL_BINDIR})
 install(FILES ${PROJECT_SOURCE_DIR}/tools/lint/yanglint.1 DESTINATION ${CMAKE_INSTALL_MANDIR}/man1)
 
 #yangre
 add_executable(yangre ${resrc})
-target_link_libraries(yangre yang)
+target_link_libraries(yangre yang_static  ${CMAKE_THREAD_LIBS_INIT} ${PCRE_LIBRARIES}  ${CMAKE_DL_LIBS})
 install(TARGETS yangre DESTINATION ${CMAKE_INSTALL_BINDIR})
 
 # yang2yin
