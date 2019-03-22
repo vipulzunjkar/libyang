@@ -6273,14 +6273,14 @@ check_leafref_features(struct lys_type *type)
         if (iter->parent && (iter->parent->nodetype == LYS_AUGMENT)) {
             aug = (struct lys_node_augment *)iter->parent;
             if ((aug->module->implemented && (aug->flags & LYS_NOTAPPLIED)) || !aug->target) {
-                return EXIT_SUCCESS;
+//                return EXIT_SUCCESS;
                 /* unresolved augment, wait until it's resolved */ // YDK temporary fix
 //                LOGVAL(LYE_SPEC, LY_VLOG_LYS, aug,
 //                       "Cannot check leafref \"%s\" if-feature consistency 
 //                       because of an unresolved augment.", 
 //                       type->info.lref.path);
 //                ret = EXIT_FAILURE;
-//                goto cleanup;
+                goto cleanup;
             }
         }
         ly_set_add(src_parents, iter, LY_SET_OPT_USEASLIST);
@@ -6293,14 +6293,14 @@ check_leafref_features(struct lys_type *type)
         if (iter->parent && (iter->parent->nodetype == LYS_AUGMENT)) {
             aug = (struct lys_node_augment *)iter->parent;
             if ((aug->module->implemented && (aug->flags & LYS_NOTAPPLIED)) || !aug->target) {
-                return EXIT_SUCCESS;
+//                return EXIT_SUCCESS;
                 /* unresolved augment, wait until it's resolved */ // YDK temporary fix
 //                LOGVAL(LYE_SPEC, LY_VLOG_LYS, aug,
 //                       "Cannot check leafref \"%s\" if-feature consistency 
 //                       because of an unresolved augment.", 
 //                       type->info.lref.path);
 //                ret = EXIT_FAILURE;
-//                goto cleanup;
+                goto cleanup;
             }
         }
         ly_set_add(trg_parents, iter, LY_SET_OPT_USEASLIST);
