@@ -128,7 +128,7 @@ enum lyxp_expr_type {
 struct lyxp_expr {
     enum lyxp_token *tokens; /* array of tokens */
     uint16_t *expr_pos;      /* array of pointers to the expression in expr (idx of the beginning) */
-    uint8_t *tok_len;        /* array of token lengths in expr */
+    uint16_t *tok_len;       /* array of token lengths in expr */
     enum lyxp_expr_type **repeat; /* array of expression types that this token begins and is repeated ended with 0,
                                      more in the comment after this declaration */
     uint16_t used;           /* used array items */
@@ -177,18 +177,30 @@ enum lyxp_set_type {
     LYXP_SET_STRING
 };
 
+#ifdef LY_ENABLED_CACHE
+
+/**
+ * @brief Item stored in an XPath set hash table.
+ */
+struct lyxp_set_hash_node {
+    struct lyd_node *node;
+    enum lyxp_node_type type;
+} _PACKED;
+
+#endif
+
 /**
  * @brief XPath set - (partial) result.
  */
 struct lyxp_set {
     enum lyxp_set_type type;
     union {
-        struct lyxp_set_nodes {
+        struct lyxp_set_node {
             struct lyd_node *node;
             enum lyxp_node_type type;
             uint32_t pos;
         } *nodes;
-        struct lyxp_set_snodes {
+        struct lyxp_set_snode {
             struct lys_node *snode;
             enum lyxp_node_type type;
             /* 0 - snode was traversed, but not currently in the context,
@@ -197,7 +209,7 @@ struct lyxp_set {
              * >=3 - snode is not in context because we are in a predicate and this snode was used/will be used later */
             uint32_t in_ctx;
         } *snodes;
-        struct lyxp_set_attrs {
+        struct lyxp_set_attr {
             struct lyd_attr *attr;
             enum lyxp_node_type type;
             uint32_t pos; /* if node_type is LYXP_SET_NODE_ATTR, it is the parent node position */
@@ -210,6 +222,9 @@ struct lyxp_set {
     /* this is valid only for type LYXP_SET_NODE_SET and LYXP_SET_SNODE_SET */
     uint32_t used;
     uint32_t size;
+#ifdef LY_ENABLED_CACHE
+    struct hash_table *ht;
+#endif
     /* this is valid only for type LYXP_SET_NODE_SET */
     uint32_t ctx_pos;
     uint32_t ctx_size;
@@ -281,8 +296,8 @@ int lyxp_atomize(const char *expr, const struct lys_node *cur_snode, enum lyxp_n
  * @param[in] node Node to examine.
  * @param[in,out] set Resulting set of atoms merged from all the expressions.
  * Will be cleared before use.
- * @param[in] set_ext_dep_flags Set #LYS_XPATH_DEP for conditions that require foreign subtree and
- * also for the node itself, if it has any such condition.
+ * @param[in] set_ext_dep_flags Whether to set #LYS_XPCONF_DEP or #LYS_XPSTATE_DEP for conditions that
+ * require foreign configuration or state subtree and also for the node itself, if it has any such condition.
  *
  * @return EXIT_SUCCESS on success, -1 on error.
  */
@@ -325,11 +340,12 @@ void lyxp_set_free(struct lyxp_set *set);
  *
  * http://www.w3.org/TR/1999/REC-xpath-19991116/ section 3.7
  *
+ * @param[in] ctx Context for errors.
  * @param[in] expr XPath expression to parse. It is duplicated.
  *
  * @return Filled expression structure or NULL on error.
  */
-struct lyxp_expr *lyxp_parse_expr(const char *expr);
+struct lyxp_expr *lyxp_parse_expr(struct ly_ctx *ctx, const char *expr);
 
 /**
  * @brief Frees a parsed XPath expression. \p expr should not be used afterwards.

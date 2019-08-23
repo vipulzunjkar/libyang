@@ -364,7 +364,7 @@ get_word(FILE *in, char **buf, int *buf_len)
                     return NULL;
                 }
             }
-        } else if (((c == '\'') || (c == '\"')) && !string) {
+        } else if (((c == '\'') || (c == '\"')) && !string && !comment) {
             if (used) {
                 /* we want strings always in a separate word, leave it */
                 if (ungetc(c, in) != c) {
@@ -1245,7 +1245,7 @@ print_keyword(enum yang_token keyword, enum yang_arg arg, FILE *out, int level, 
         break;
     case YANG_WHEN:
         fprintf(out, "%*s<when condition=\"", LEVEL(level), INDENT(level));
-        close_tag = "condition";
+        close_tag = "when";
         break;
     case YANG_YANG_VERSION:
         fprintf(out, "%*s<yang-version value=\"", LEVEL(level), INDENT(level));
@@ -1794,6 +1794,8 @@ main(int argc, char **argv)
     case 2:
         if (!strcmp(argv[1], "-h") || !strcmp(argv[1], "--help")) {
             fprintf(stdout, "Usage:\n\t%s [input-file] [output-file]\n", argv[0]);
+            fprintf(stdout, "\n\tinput-file:   intput yang file path. If empty, input from stdin. \n");
+            fprintf(stdout, "\toutput-file:  output yin file path. If empty, output to stdout.  \n\n");
             return 0;
         }
         in_file = argv[1];

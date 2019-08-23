@@ -8,7 +8,8 @@
 
 libyang is a YANG data modelling language parser and toolkit written (and
 providing API) in C. The library is used e.g. in [libnetconf2](https://github.com/CESNET/libnetconf2),
-[Netopeer2](https://github.com/CESNET/Netopeer2) or [sysrepo](https://github.com/sysrepo/sysrepo) projects.
+[Netopeer2](https://github.com/CESNET/Netopeer2), [sysrepo](https://github.com/sysrepo/sysrepo) and
+[FRRouting](https://github.com/frrouting/frr) projects.
 
 ## Provided Features
 
@@ -20,7 +21,7 @@ providing API) in C. The library is used e.g. in [libnetconf2](https://github.co
 * Manipulation with the instance data.
 * Support for default values in the instance data ([RFC 6243](https://tools.ietf.org/html/rfc6243)).
 * Support for YANG extensions.
-* Support for YANG Metadata ([RFC 7952](https://tools.ietf.org/html/rfc6243)).
+* Support for YANG Metadata ([RFC 7952](https://tools.ietf.org/html/rfc7952)).
 * [yanglint](#yanglint) - feature-rich YANG tool.
 
 Current implementation covers YANG 1.0 ([RFC 6020](https://tools.ietf.org/html/rfc6020))
@@ -37,8 +38,8 @@ master branch. If you want the latest code from the devel branch, install `libya
 
 ### Build Requirements
 
-* C compiler (gcc, clang, ...)
-* cmake >= 2.8.9
+* C compiler (gcc >= 4.8.4, clang >= 3.0, ...)
+* cmake >= 2.8.12
 * libpcre (devel package)
  * note, that PCRE is supposed to be compiled with unicode support (configure's options
    `--enable-utf` and `--enable-unicode-properties`)
@@ -224,6 +225,13 @@ Tests can be run by the make's `test` target:
 ```
 $ make test
 ```
+
+## Fuzzing
+
+Simple fuzzing targets, fuzzing instructions and a Dockerfile that builds the fuzz targets
+and the AFL fuzzer are available in the `tests/fuzz` directory.
+
+The `tests/fuzz` directory also contains a README file that describes the whole process in more detail.
 
 ## Bindings
 
