@@ -2,8 +2,7 @@ __author__ = "Mislav Novakovic <mislav.novakovic@sartura.hr>"
 __copyright__ = "Copyright 2017, Deutsche Telekom AG"
 __license__ = "BSD 3-Clause"
 
-import yang as ly
-import sys
+import libyang as ly
 
 try:
     ctx = ly.Context("/etc/sysrepo/yang")
@@ -17,21 +16,10 @@ module = ctx.load_module("ietf-yang-types", None)
 module = ctx.load_module("ietf-interfaces", None)
 module = ctx.load_module("ietf-ip", None)
 
-node = None
 try:
-    if node is None : node = ctx.parse_data_path("/etc/sysrepo/data/ietf-interfaces.startup", ly.LYD_LYB, ly.LYD_OPT_CONFIG)
+    node = ctx.parse_data_path("/etc/sysrepo/data/ietf-interfaces.startup", ly.LYD_XML, ly.LYD_OPT_CONFIG)
 except Exception as e:
     print(e)
-try:
-    if node is None : node = ctx.parse_data_path("/etc/sysrepo/data/ietf-interfaces.startup", ly.LYD_XML, ly.LYD_OPT_CONFIG)
-except Exception as e:
-    print(e)
-try:
-    if node is None : node = ctx.parse_data_path("/etc/sysrepo/data/ietf-interfaces.startup", ly.LYD_JSON, ly.LYD_OPT_CONFIG)
-except Exception as e:
-    print(e)
-
-if node is None:
     sys.exit()
 
 node_set = node.find_path("/ietf-interfaces:interfaces//*")

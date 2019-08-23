@@ -15,7 +15,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <setjmp.h>
-#include <stdarg.h>
 #include <cmocka.h>
 
 #include "tests/config.h"
@@ -162,11 +161,11 @@ test_dummy(void **state)
 
     assert_int_equal(lyd_validate(&(st->dt), LYD_OPT_CONFIG, NULL), 1);
     assert_int_equal(ly_errno, LY_EVALID);
-    assert_int_equal(ly_vecode(st->ctx), LYVE_XPATH_DUMMY);
+    assert_int_equal(ly_vecode, LYVE_XPATH_DUMMY);
 }
 
 static void
-test_dependency_noautodel(void **state)
+test_dependency_autodel(void **state)
 {
     struct state *st = (struct state *)*state;
     struct lyd_node *node;
@@ -186,9 +185,9 @@ test_dependency_noautodel(void **state)
     node = lyd_new_path(st->dt, st->ctx, "/when-depend:top/e", "val_e", 0, 0);
     assert_ptr_not_equal(node, NULL);
 
-    assert_int_equal(lyd_validate(&(st->dt), LYD_OPT_CONFIG | LYD_OPT_WHENAUTODEL, NULL), 1);
-    assert_int_equal(ly_errno, LY_EVALID);
-    assert_int_equal(ly_vecode(st->ctx), LYVE_NOWHEN);
+    assert_int_equal(lyd_validate(&(st->dt), LYD_OPT_CONFIG, NULL), 0);
+
+    assert_ptr_equal(st->dt, NULL);
 }
 
 static void
@@ -214,7 +213,7 @@ test_dependency_circular(void **state)
 
     assert_int_equal(lyd_validate(&(st->dt), LYD_OPT_CONFIG, NULL), 1);
     assert_int_equal(ly_errno, LY_EVALID);
-    assert_int_equal(ly_vecode(st->ctx), LYVE_INWHEN);
+    assert_int_equal(ly_vecode, LYVE_INWHEN);
 }
 
 static void
@@ -243,7 +242,7 @@ int main(void)
                     cmocka_unit_test_setup_teardown(test_unlink_case, setup_f, teardown_f),
                     cmocka_unit_test_setup_teardown(test_unlink_augment, setup_f, teardown_f),
                     cmocka_unit_test_setup_teardown(test_dummy, setup_f, teardown_f),
-                    cmocka_unit_test_setup_teardown(test_dependency_noautodel, setup_f, teardown_f),
+                    cmocka_unit_test_setup_teardown(test_dependency_autodel, setup_f, teardown_f),
                     cmocka_unit_test_setup_teardown(test_dependency_circular, setup_f, teardown_f),
                     cmocka_unit_test_setup_teardown(test_unlink_all, setup_f, teardown_f)
     };

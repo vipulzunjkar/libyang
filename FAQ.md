@@ -5,7 +5,7 @@ __Q: error while loading shared libraries__
 __A:__ libyang is installed into the directory detected by CMake's GNUInstallDirs
    function. However, when it is connected with the installation prefix, the
    target directory is not necessary the path used by the system linker. Check
-   the linker's paths in `/etc/ld.so.conf.d/`. If the path where libyang is
+   the linker's paths in `/etc/ld.so.conf.d/`. If the path where libyang is 
    installed is already present, just make `ldconfig` to rebuild its cache:
 ```
 # ldconfig
@@ -15,13 +15,13 @@ __A:__ libyang is installed into the directory detected by CMake's GNUInstallDir
 ```
 $ mkdir build; cd build
 $ cmake -DCMAKE_INSTALL_PREFIX:PATH=/usr ..
-$ make
+$ make 
 # make install
 ```
    or add the libyang's location to the linker paths in `/etc/ld.so.conf.d` and
    then run `ldconfig` to rebuild the linker cache.
 
-__Q: yanglint(1) does not start, but prints the following error messages:__
+__Q: yanglint(1) does not start and, but prints the following error messages:__
 ```
 ./yanglint
 libyang[0]: Invalid keyword "type" as a child to "annotation". (path: /)
@@ -40,9 +40,4 @@ __A:__ To handle complex YANG extensions, libyang (and therefore yanglint(1))
 ```
 $ LIBYANG_EXTENSIONS_PLUGINS_DIR=`pwd`/src/extensions ./yanglint
 ```
-   The same issue occurs for user types and the solution is the same except they
-   are built in `src/user_types/` subdirectory and the path should be set with:
-```
-$ LIBYANG_USER_TYPES_PLUGINS_DIR=`pwd`/src/user_types
-```
-   However, user types are not required for yanglint(1) to run properly.
+

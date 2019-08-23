@@ -9,5 +9,3 @@ Requires.private: libpcre
 Libs: -L${libdir} -lyang
 Libs.private: -lpcre
 Cflags: -I${includedir}
-
-LIBYANG_SOVERSION=@LIBYANG_SOVERSION_FULL@

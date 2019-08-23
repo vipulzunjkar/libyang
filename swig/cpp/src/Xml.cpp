@@ -25,8 +25,6 @@ extern "C" {
 #include "xml.h"
 }
 
-namespace libyang {
-
 Xml_Ns::Xml_Ns(const struct lyxml_ns *ns, S_Deleter deleter):
     ns((struct lyxml_ns *) ns),
     deleter(deleter)
@@ -74,26 +72,24 @@ std::string Xml_Elem::print_mem(int options) {
     return s_data;
 }
 
-std::vector<S_Xml_Elem> Xml_Elem::tree_for() {
-    std::vector<S_Xml_Elem> s_vector;
+std::vector<S_Xml_Elem> *Xml_Elem::tree_for() {
+    auto s_vector = new std::vector<S_Xml_Elem>;
 
     struct lyxml_elem *elem = nullptr;
     LY_TREE_FOR(elem, elem) {
-        s_vector.push_back(std::make_shared<Xml_Elem>(context, elem, deleter));
+        s_vector->push_back(std::make_shared<Xml_Elem>(context, elem, deleter));
     }
 
     return s_vector;
 }
-std::vector<S_Xml_Elem> Xml_Elem::tree_dfs() {
-    std::vector<S_Xml_Elem> s_vector;
+std::vector<S_Xml_Elem> *Xml_Elem::tree_dfs() {
+    auto s_vector = new std::vector<S_Xml_Elem>;
 
     struct lyxml_elem *elem = nullptr, *next = nullptr;
     LY_TREE_DFS_BEGIN(elem, next, elem) {
-        s_vector.push_back(std::make_shared<Xml_Elem>(context, elem, deleter));
+        s_vector->push_back(std::make_shared<Xml_Elem>(context, elem, deleter));
         LY_TREE_DFS_END(elem, next, elem)
     }
 
     return s_vector;
-}
-
 }

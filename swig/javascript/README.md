@@ -1,32 +1,26 @@
 ## Requirements
 
 * cmake >= 2.8.12
-* swig >= 3.0.0
-* node >= 0.10.x < 4.9.0
+* swig
+* node >= 0.10.x
 * npm
-* libpcre
 
 ## Install
 
 ```
-$ cmake -DENABLE_STATIC=ON -DGEN_LANGUAGE_BINDINGS=ON -DGEN_JAVASCRIPT_BINDINGS=ON ..
+$ cmake -DJAVASCRIPT_BINDING=ON ..
 $ make
 $ make install #necessary for plugin's
-$ cd swig/javascript
+$ cd javascript
 $ npm install --unsafe-perm
 ```
 
-## Test
+## node 7.0.x
 
-```
-$ node test.js
-```
+The latest SWIG library does not generate correct node 7.0.x code. To correct that at the moment you need to do two things:
 
-## SWIG
-
-Current SWIG version does not support shared pointer. To correct that at the moment you need to do one thing:
-
-1) Use the latest SWIG master branch with the pull request [Add shared pointer support in javascript](https://github.com/swig/swig/pull/236).
+1) Use the latest SWIG master branch with the pull request [Add Node 7.x aka V8 5.2+ support](https://github.com/swig/swig/pull/968).
+2) In the generated C++ source file libyang_javascript_wrap.cxx replace 'lys_ext_instance_complex()' with 'lys_ext_instance_complex'.
 
 You can build the JavaScript bindings inside docker, for that you can use the [dockerfile](./Dockerfile), it is based on the [dockerfile](https://github.com/sysrepo/sysrepo/blob/master/deploy/docker/sysrepo-netopeer2/platforms/Dockerfile.arch.devel).
 

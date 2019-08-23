@@ -47,7 +47,7 @@ yin_print_open(struct lyout *out, int level, const char *elem_prefix, const char
 
     if (attr_name) {
         ly_print(out, " %s=\"", attr_name);
-        lyxml_dump_text(out, attr_value, LYXML_DATA_ATTR);
+        lyxml_dump_text(out, attr_value);
         ly_print(out, "\"%s", endflag == -1 ? "/>\n" : endflag == 1 ? ">\n" : "");
     } else if (endflag) {
         ly_print(out, endflag == -1 ? "/>\n" : ">\n");
@@ -91,7 +91,7 @@ static void
 yin_print_arg(struct lyout *out, int level, const char *arg, const char *text)
 {
     ly_print(out, "%*s<%s>", LEVEL, INDENT, arg);
-    lyxml_dump_text(out, text, LYXML_DATA_ELEM);
+    lyxml_dump_text(out, text);
     ly_print(out, "</%s>\n", arg);
 }
 
@@ -371,7 +371,7 @@ yin_print_when(struct lyout *out, int level, const struct lys_module *module, co
     }
 
     ly_print(out, "%*s<when condition=\"", LEVEL, INDENT);
-    lyxml_dump_text(out, str, LYXML_DATA_ATTR);
+    lyxml_dump_text(out, str);
     ly_print(out, "\"");
     lydict_remove(module->ctx, str);
 
@@ -404,12 +404,9 @@ yin_print_unsigned(struct lyout *out, int level, LYEXT_SUBSTMT substmt, uint8_t 
 {
     char *str;
 
-    if (asprintf(&str, "%u", attr_value) == -1) {
-        LOGMEM(module->ctx);
-    } else {
-        yin_print_substmt(out, level, substmt, substmt_index, str, module, ext, ext_size);
-        free(str);
-    }
+    asprintf(&str, "%u", attr_value);
+    yin_print_substmt(out, level, substmt, substmt_index, str, module, ext, ext_size);
+    free(str);
 }
 
 static void
@@ -419,12 +416,9 @@ yin_print_signed(struct lyout *out, int level, LYEXT_SUBSTMT substmt, uint8_t su
 {
     char *str;
 
-    if (asprintf(&str, "%d", attr_value) == -1) {
-        LOGMEM(module->ctx);
-    } else {
-        yin_print_substmt(out, level, substmt, substmt_index, str, module, ext, ext_size);
-        free(str);
-    }
+    asprintf(&str, "%d", attr_value);
+    yin_print_substmt(out, level, substmt, substmt_index, str, module, ext, ext_size);
+    free(str);
 }
 
 static void
@@ -436,9 +430,9 @@ yin_print_type(struct lyout *out, int level, const struct lys_module *module, co
     char *s;
     struct lys_module *mod;
 
-    if (!lys_type_is_local(type)) {
+    if (type->module_name) {
         ly_print(out, "%*s<type name=\"%s:%s\"", LEVEL, INDENT,
-                 transform_module_name2import_prefix(module, lys_main_module(type->der->module)->name), type->der->name);
+                 transform_module_name2import_prefix(module, type->module_name), type->der->name);
     } else {
         yin_print_open(out, level, NULL, "type", "name", type->der->name, content);
     }
@@ -514,14 +508,11 @@ yin_print_type(struct lyout *out, int level, const struct lys_module *module, co
                     yin_print_substmt(out, level, LYEXT_SUBSTMT_BASE, 0, type->info.ident.ref[i]->name,
                                       module, type->info.ident.ref[i]->ext, type->info.ident.ref[i]->ext_size);
                 } else {
-                    if (asprintf(&s, "%s:%s", transform_module_name2import_prefix(module, mod->name),
-                                 type->info.ident.ref[i]->name) == -1) {
-                        LOGMEM(module->ctx);
-                    } else {
-                        yin_print_substmt(out, level, LYEXT_SUBSTMT_BASE, 0, s,
-                                          module, type->info.ident.ref[i]->ext, type->info.ident.ref[i]->ext_size);
-                        free(s);
-                    }
+                    asprintf(&s, "%s:%s", transform_module_name2import_prefix(module, mod->name),
+                             type->info.ident.ref[i]->name);
+                    yin_print_substmt(out, level, LYEXT_SUBSTMT_BASE, 0, s,
+                                      module, type->info.ident.ref[i]->ext, type->info.ident.ref[i]->ext_size);
+                    free(s);
                 }
             }
         }
@@ -601,7 +592,7 @@ yin_print_must(struct lyout *out, int level, const struct lys_module *module, co
     }
 
     ly_print(out, "%*s<must condition=\"", LEVEL, INDENT);
-    lyxml_dump_text(out, str, LYXML_DATA_ATTR);
+    lyxml_dump_text(out, str);
     ly_print(out, "\"");
     lydict_remove(module->ctx, str);
 
@@ -610,16 +601,13 @@ yin_print_must(struct lyout *out, int level, const struct lys_module *module, co
 }
 
 static void
-yin_print_unique(struct lyout *out, int level, const struct lys_module *module, const struct lys_unique *uniq)
+yin_print_unique(struct lyout *out, int level, const struct lys_unique *uniq)
 {
     int i;
-    const char *str;
 
     ly_print(out, "%*s<unique tag=\"", LEVEL, INDENT);
     for (i = 0; i < uniq->expr_size; i++) {
-        str = transform_json2schema(module, uniq->expr[i]);
-        ly_print(out, "%s%s", str, i + 1 < uniq->expr_size ? " " : "");
-        lydict_remove(module->ctx, str);
+        ly_print(out, "%s%s", uniq->expr[i], i + 1 < uniq->expr_size ? " " : "");
     }
     ly_print(out, "\"");
 }
@@ -750,7 +738,7 @@ yin_print_deviation(struct lyout *out, int level, const struct lys_module *modul
 
         /* unique */
         for (j = 0; j < deviation->deviate[i].unique_size; ++j) {
-            yin_print_unique(out, level, module, &deviation->deviate[i].unique[j]);
+            yin_print_unique(out, level, &deviation->deviate[i].unique[j]);
             content = 0;
             /* unique's extensions */
             p = -1;
@@ -913,13 +901,10 @@ yin_print_identity(struct lyout *out, int level, const struct lys_ident *ident)
             yin_print_substmt(out, level, LYEXT_SUBSTMT_BASE, i, ident->base[i]->name,
                               ident->module, ident->ext, ident->ext_size);
         } else {
-            if (asprintf(&str, "%s:%s", transform_module_name2import_prefix(ident->module, mod->name), ident->base[i]->name) == -1) {
-                LOGMEM(mod->ctx);
-            } else {
-                yin_print_substmt(out, level, LYEXT_SUBSTMT_BASE, i, str,
-                                  ident->module, ident->ext, ident->ext_size);
-                free(str);
-            }
+            asprintf(&str, "%s:%s", transform_module_name2import_prefix(ident->module, mod->name), ident->base[i]->name);
+            yin_print_substmt(out, level, LYEXT_SUBSTMT_BASE, i, str,
+                              ident->module, ident->ext, ident->ext_size);
+            free(str);
         }
     }
     yin_print_snode_common(out, level, (struct lys_node *)ident, ident->module, &content,
@@ -1146,11 +1131,6 @@ yin_print_anydata(struct lyout *out, int level, const struct lys_node *node)
     struct lys_node_anydata *any = (struct lys_node_anydata *)node;
     const char *name;
 
-    if (!lys_parent(node) && !strcmp(node->name, "config") && !strcmp(node->module->name, "ietf-netconf")) {
-        /* node added by libyang, not actually in the model */
-        return;
-    }
-
     name = any->nodetype == LYS_ANYXML ? "anyxml" : "anydata";
     yin_print_open(out, level, NULL, name, "name", any->name, content);
 
@@ -1267,7 +1247,7 @@ yin_print_list(struct lyout *out, int level, const struct lys_node *node)
     }
     for (i = 0; i < list->unique_size; i++) {
         yin_print_close_parent(out, &content);
-        yin_print_unique(out, level, node->module, &list->unique[i]);
+        yin_print_unique(out, level, &list->unique[i]);
         content2 = 0;
         /* unique's extensions */
         p = -1;
@@ -1295,11 +1275,9 @@ yin_print_list(struct lyout *out, int level, const struct lys_node *node)
         yin_print_unsigned(out, level, LYEXT_SUBSTMT_MAX, 0, node->module, node->ext, node->ext_size, list->max);
     }
     if (list->flags & LYS_USERORDERED) {
-        yin_print_close_parent(out, &content);
         yin_print_substmt(out, level, LYEXT_SUBSTMT_ORDEREDBY, 0, "user",
                           node->module, node->ext, node->ext_size);
     } else if (lys_ext_iter(node->ext, node->ext_size, 0, LYEXT_SUBSTMT_ORDEREDBY) != -1) {
-        yin_print_close_parent(out, &content);
         yin_print_substmt(out, level, LYEXT_SUBSTMT_ORDEREDBY, 0, "system",
                           node->module, node->ext, node->ext_size);
     }
@@ -1625,8 +1603,6 @@ yin_print_xmlns(struct lyout *out, const struct lys_module *module)
     ly_print(out, "%*sxmlns=\"%s\"", lvl, INDENT, LY_NSYIN);
     if (!module->type) {
         ly_print(out, "\n%*sxmlns:%s=\"%s\"", lvl, INDENT, module->prefix, module->ns);
-    } else {
-        ly_print(out, "\n%*sxmlns:%s=\"%s\"", lvl, INDENT, module->prefix, ((struct lys_submodule*)module)->belongsto->ns);
     }
     for (i = 0; i < module->imp_size; ++i) {
         ly_print(out, "\n%*sxmlns:%s=\"%s\"", lvl, INDENT, module->imp[i].prefix, module->imp[i].module->ns);
@@ -1651,8 +1627,8 @@ yin_print_model_(struct lyout *out, int level, const struct lys_module *module)
         ly_print(out, ">\n");
 
         level++;
-        if (module->version) {
-            yin_print_substmt(out, level, LYEXT_SUBSTMT_VERSION, 0, module->version == LYS_VERSION_1_1 ? "1.1" : "1",
+        if (module->version > 1 || lys_ext_iter(module->ext, module->ext_size, 0, LYEXT_SUBSTMT_VERSION) != -1) {
+            yin_print_substmt(out, level, LYEXT_SUBSTMT_VERSION, 0, module->version == 2 ? "1.1" : "1",
                               module, module->ext, module->ext_size);
         }
         yin_print_open(out, level, NULL, "belongs-to", "module", ((struct lys_submodule *)module)->belongsto->name, 1);
@@ -1670,7 +1646,7 @@ yin_print_model_(struct lyout *out, int level, const struct lys_module *module)
 
         level++;
         if (module->version) {
-            yin_print_substmt(out, level, LYEXT_SUBSTMT_VERSION, 0, module->version == LYS_VERSION_1_1 ? "1.1" : "1",
+            yin_print_substmt(out, level, LYEXT_SUBSTMT_VERSION, 0, module->version == 2 ? "1.1" : "1",
                               module, module->ext, module->ext_size);
         }
         yin_print_substmt(out, level, LYEXT_SUBSTMT_NAMESPACE, 0, module->ns,
@@ -1838,7 +1814,7 @@ yin_print_extcomplex_bool(struct lyout *out, int level, const struct lys_module 
     } else if (*val == 2) {
         yin_print_substmt(out, level, (LYEXT_SUBSTMT)stmt, 0, false_val, module, ext->ext, ext->ext_size);
     } else {
-        LOGINT(module->ctx);
+        LOGINT;
     }
 }
 
@@ -1996,7 +1972,7 @@ yin_print_extension_instances(struct lyout *out, int level, const struct lys_mod
                 yin_print_open(out, level, prefix, ext[u]->def->name, NULL, NULL, content);
                 level++;
                 ly_print(out, "%*s<%s:%s>", LEVEL, INDENT, prefix, ext[u]->def->argument);
-                lyxml_dump_text(out, ext[u]->arg_value, LYXML_DATA_ELEM);
+                lyxml_dump_text(out, ext[u]->arg_value);
                 ly_print(out, "</%s:%s>\n", prefix, ext[u]->def->argument);
                 level--;
             } else {
@@ -2222,7 +2198,7 @@ yin_print_extension_instances(struct lyout *out, int level, const struct lys_mod
                     if (info[i].cardinality >= LY_STMT_CARD_SOME) { /* process array */
                         for (pp = *pp, c = 0; *pp; pp++, c++) {
                             yin_print_close_parent(out, &content);
-                            yin_print_unique(out, level, module, (struct lys_unique*)(*pp));
+                            yin_print_unique(out, level, (struct lys_unique*)(*pp));
                             /* unique's extensions */
                             j = -1; content2 = 0;
                             do {
@@ -2241,7 +2217,7 @@ yin_print_extension_instances(struct lyout *out, int level, const struct lys_mod
                         }
                     } else { /* single item */
                         yin_print_close_parent(out, &content);
-                        yin_print_unique(out, level, module, (struct lys_unique*)(*pp));
+                        yin_print_unique(out, level, (struct lys_unique*)(*pp));
                         /* unique's extensions */
                         j = -1; content2 = 0;
                         while ((j = lys_ext_iter(ext[u]->ext, ext[u]->ext_size, j + 1, LYEXT_SUBSTMT_UNIQUE)) != -1) {

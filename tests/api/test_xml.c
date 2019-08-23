@@ -188,7 +188,7 @@ test_lyxml_print_fd(void **state)
     int fd;
 
     memset(file_name, 0, sizeof(file_name));
-    strncpy(file_name, TMP_TEMPLATE, sizeof(file_name));
+    strncpy(file_name, TMP_TEMPLATE, strlen(TMP_TEMPLATE));
 
     fd = mkstemp(file_name);
     if (fd < 1) {
@@ -244,7 +244,7 @@ test_lyxml_print_file(void **state)
     assert_string_equal("x", xml->name);
 
     memset(file_name, 0, sizeof(file_name));
-    strncpy(file_name, TMP_TEMPLATE, sizeof(file_name));
+    strncpy(file_name, TMP_TEMPLATE, strlen(TMP_TEMPLATE));
 
     fd = mkstemp(file_name);
     if (fd < 1) {
@@ -436,54 +436,6 @@ test_lyxml_get_ns(void **state)
     lyxml_free(ctx, xml);
 }
 
-void
-test_lyxml_dup(void **state)
-{
-    (void) state;
-    struct lyxml_elem *first_xml = NULL;
-    struct lyxml_elem *second_xml = NULL;
-    const char *path = TESTS_DIR"/api/files/a.xml";
-
-    first_xml = lyxml_parse_path(ctx, path, 0);
-
-    if (!first_xml) {
-        fail();
-    }
-
-    /* Making sure that the first and the second element aren't the same */
-    if (first_xml == second_xml) {
-        fail();
-    }
-
-    second_xml = lyxml_dup(ctx, first_xml);
-
-    /* Checking whether the first element is duplicated into the second */
-    if (!second_xml) {
-        fail();
-    }
-
-    /* Freeing the elements */
-    lyxml_free(ctx, first_xml);
-    lyxml_free(ctx, second_xml);
-}
-
-void
-test_lyxml_free_withsiblings(void **state)
-{
-    (void) state;
-    struct lyxml_elem *xml = NULL;
-    const char *path = TESTS_DIR"/api/files/a.xml";
-    xml = lyxml_parse_path(ctx, path, 0);
-
-    /* Making sure the element is not null */
-    if (!xml) {
-        fail();
-    }
-
-    /* Freeing the element with its siblings */
-    lyxml_free_withsiblings(ctx, xml);
-}
-
 int main(void)
 {
     const struct CMUnitTest tests[] = {
@@ -497,8 +449,6 @@ int main(void)
         cmocka_unit_test_setup_teardown(test_lyxml_unlink, setup_f, teardown_f),
         cmocka_unit_test_setup_teardown(test_lyxml_get_attr, setup_f, teardown_f),
         cmocka_unit_test_setup_teardown(test_lyxml_get_ns, setup_f, teardown_f),
-        cmocka_unit_test_setup_teardown(test_lyxml_dup, setup_f, teardown_f),
-        cmocka_unit_test_setup_teardown(test_lyxml_free_withsiblings, setup_f, teardown_f),
     };
 
     return cmocka_run_group_tests(tests, NULL, NULL);

@@ -13,7 +13,6 @@
  */
 
 #include <iostream>
-#include <stdexcept>
 
 #include "Internal.hpp"
 #include "Libyang.hpp"
@@ -25,74 +24,60 @@ extern "C" {
 #include "tree_schema.h"
 }
 
-namespace libyang {
-
-void check_libyang_error(ly_ctx *ctx) {
-    const char *errmsg = ctx ? ly_errmsg(ctx) : nullptr;
-
-    if (errmsg) {
-        throw std::runtime_error(errmsg);
-    } else if (ly_errno) {
-        throw std::runtime_error("libyang error");
-    } else if (!ctx) {
-        throw std::runtime_error("No Context");
-	}
-};
-
 Deleter::Deleter(ly_ctx *ctx, S_Deleter parent):
     t(Free_Type::CONTEXT),
-    parent(parent)
+    parent(parent),
+    context(nullptr)
 {
-    context = NULL;
     v.ctx = ctx;
 };
 Deleter::Deleter(struct lyd_node *data, S_Deleter parent):
     t(Free_Type::DATA_NODE),
-    parent(parent)
+    parent(parent),
+    context(nullptr)
 {
-    context = NULL;
     v.data = data;
 };
 Deleter::Deleter(struct lys_node *schema, S_Deleter parent):
     t(Free_Type::SCHEMA_NODE),
-    parent(parent)
+    parent(parent),
+    context(nullptr)
 {
-    context = NULL;
     v.schema = schema;
 };
 Deleter::Deleter(struct lys_module *module, S_Deleter parent):
     t(Free_Type::MODULE),
-    parent(parent)
+    parent(parent),
+    context(nullptr)
 {
-    context = NULL;
     v.module = module;
 };
 Deleter::Deleter(struct lys_submodule *submodule, S_Deleter parent):
     t(Free_Type::SUBMODULE),
-    parent(parent)
+    parent(parent),
+    context(nullptr)
 {
-    context = NULL;
     v.submodule = submodule;
 };
 Deleter::Deleter(S_Context context, struct lyxml_elem *elem, S_Deleter parent):
     t(Free_Type::XML),
-    parent(parent)
+    parent(parent),
+    context(context)
 {
-    context = NULL;
     v.elem = elem;
 };
 Deleter::Deleter(struct ly_set *set, S_Deleter parent):
     t(Free_Type::SET),
-    parent(parent)
+    parent(parent),
+    context(nullptr)
 {
-    context = NULL;
     v.set = set;
 }
 Deleter::Deleter(struct lyd_difflist *diff, S_Deleter parent):
     t(Free_Type::DIFFLIST),
-    parent(parent)
+    parent(parent),
+    context(nullptr)
 {
-    context = NULL;
     v.diff = diff;
 }
 Deleter::~Deleter() {
@@ -102,7 +87,7 @@ Deleter::~Deleter() {
         v.ctx = nullptr;
         break;
     case Free_Type::DATA_NODE:
-        if (v.data) lyd_free_withsiblings(v.data);
+        if (v.data) lyd_free(v.data);
         v.data = nullptr;
         break;
     case Free_Type::SCHEMA_NODE:
@@ -125,5 +110,3 @@ Deleter::~Deleter() {
         break;
     }
 };
-
-}
