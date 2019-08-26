@@ -41,11 +41,12 @@ json_print_string(struct lyout *out, const char *text)
 
     ly_write(out, "\"", 1);
     for (i = n = 0; text[i]; i++) {
-        if (text[i] >= 0 && text[i] < 0x20) {
+        const unsigned char ascii = text[i];
+        if (ascii < 0x20) {
             /* control character */
-            n += ly_print(out, "\\u%.4X");
+            n += ly_print(out, "\\u%.4X", ascii);
         } else {
-            switch (text[i]) {
+            switch (ascii) {
             case '"':
                 n += ly_print(out, "\\\"");
                 break;
@@ -173,6 +174,7 @@ contentprint:
     case LY_TYPE_INST:
     case LY_TYPE_INT64:
     case LY_TYPE_UINT64:
+    case LY_TYPE_UNION:
     case LY_TYPE_DEC64:
         json_print_string(out, leaf->value_str);
         break;
@@ -353,6 +355,10 @@ json_print_leaf_list(struct lyout *out, int level, const struct lyd_node *node, 
             if (list->attr) {
                 flag_attrs = 1;
             }
+        }
+        if (toplevel && !(options & LYP_WITHSIBLINGS)) {
+            /* if initially called without LYP_WITHSIBLINGS do not print other list entries */
+            break;
         }
         for (list = list->next; list && list->schema != node->schema; list = list->next);
         if (list) {
