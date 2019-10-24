@@ -1144,20 +1144,32 @@ int
 yang_read_pattern(struct lys_module *module, struct lys_restr *pattern, void **precomp, char *value, char modifier)
 {
     char *buf;
+    char *orig_value;
     size_t len;
+
+    // YDK:ygorelik: Change pattern for openconfig modules
+    // by removing '^' in the beginning and '$' at the end of the pattern value
+    len = strlen(value);
+    orig_value = value;
+    if (strlen(module->name) >= strlen("openconfig") && value[0]=='^' && value[len-1]=='$' &&
+        memcmp(module->name, "openconfig", strlen("openconfig")) == 0)
+    {
+        value[len-1] = 0;
+        value = value + 1;
+        len = len - 2;
+    }
 
     if (precomp && lyp_precompile_pattern(value, (pcre**)&precomp[0], (pcre_extra**)&precomp[1])) {
         free(value);
         return EXIT_FAILURE;
     }
 
-    len = strlen(value);
     buf = malloc((len + 2) * sizeof *buf); /* modifier byte + value + terminating NULL byte */
     LY_CHECK_ERR_RETURN(!buf, LOGMEM; free(value), EXIT_FAILURE);
 
     buf[0] = modifier;
     strcpy(&buf[1], value);
-    free(value);
+    free(orig_value);
 
     pattern->expr = lydict_insert_zc(module->ctx, buf);
     return EXIT_SUCCESS;
