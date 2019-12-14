@@ -2827,16 +2827,22 @@ yang_read_string(const char *input, char *output, int size, int offset, int inde
                 output[out_index] = '\t';
                 ++i;
                 ++space;
-            } else if (input[i + 1] == '\\') {
+            } else if (input[i + 1] == '\\' || input[i + 1] == '.' || input[i + 1] == '-') {
                 output[out_index] = '\\';
                 ++i;
             } else if ((i + 1) != size && input[i + 1] == '"') {
                 output[out_index] = '"';
                 ++i;
             } else {
-                /* backslash must not be followed by any other character */
+                /* backslash must not be followed by any other character, except it is escape character processed above */
                 LOGVAL(LYE_INSTMT, LY_VLOG_NONE, NULL, input);
                 return NULL;
+            }
+            break;
+        case '"':
+            if (i < size-1) {
+                output[out_index] = input[i];
+                space = 0;
             }
             break;
         default:
