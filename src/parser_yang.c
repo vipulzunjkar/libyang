@@ -2827,7 +2827,7 @@ yang_read_string(const char *input, char *output, int size, int offset, int inde
                 output[out_index] = '\t';
                 ++i;
                 ++space;
-            } else if (input[i + 1] == '\\' || input[i + 1] == '.' || input[i + 1] == '-') {
+            } else if (input[i + 1] == '\\' || input[i + 1] == '.' || input[i + 1] == '-' || input[i + 1] == '*') {
                 output[out_index] = '\\';
                 ++i;
             } else if ((i + 1) != size && input[i + 1] == '"') {
