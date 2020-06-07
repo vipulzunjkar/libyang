@@ -550,9 +550,10 @@ json_print_nodes(struct lyout *out, int level, const struct lyd_node *root, int 
         case LYS_ACTION:
         case LYS_NOTIF:
         case LYS_CONTAINER:
-            if (node->prev->next && node->parent) {
+            if (node->prev->next && node->parent && out->method.mem.len > 6) {
                 /* print the previous comma */
                 /* do not print coma for top level nodes */
+                /* do not print coma before any attribute is already printed */
                 ly_print(out, ",%s", (level ? "\n" : ""));
             }
             ret = json_print_container(out, level, node, toplevel, options);
