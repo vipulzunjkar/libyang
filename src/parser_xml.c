@@ -200,7 +200,7 @@ xml_parse_data(struct ly_ctx *ctx, struct lyxml_elem *xml, struct lyd_node *pare
 
     mod = lys_node_module(schema);
     if (!mod || !mod->implemented || mod->disabled) {
-        if (options & LYD_OPT_STRICT) {
+        if (!schema || (options & LYD_OPT_STRICT)) {
             LOGVAL(LYE_INELEM, (parent ? LY_VLOG_LYD : LY_VLOG_NONE), parent, xml->name);
             return -1;
         } else {
