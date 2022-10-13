@@ -78,7 +78,7 @@ ly_ctx_internal_modules_count(struct ly_ctx *ctx)
 }
 
 API struct ly_ctx *
-ly_ctx_new(const char *search_dir, int options)
+ly_ctx_new_old(const char *search_dir, int options)
 {
     struct ly_ctx *ctx = NULL;
     struct lys_module *module;
@@ -165,7 +165,7 @@ ly_ctx_new_yl_common(const char *search_dir, const char *input, LYD_FORMAT forma
     struct ly_set *set = NULL;
 
     /* create empty (with internal modules including ietf-yang-library) context */
-    ctx = ly_ctx_new(search_dir, options);
+    ctx = ly_ctx_new_old(search_dir, options);
     if (!ctx) {
         goto error;
     }
