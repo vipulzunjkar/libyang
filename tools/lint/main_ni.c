@@ -563,7 +563,7 @@ main_ni(int argc, char* argv[])
     if (ylpath) {
         ctx = ly_ctx_new_ylpath(searchpaths ? (const char*)searchpaths->set.g[0] : NULL, ylpath, ylformat, options_ctx);
     } else {
-        ctx = ly_ctx_new(NULL, options_ctx);
+        ctx = ly_ctx_new_old(NULL, options_ctx);
     }
     if (!ctx) {
         goto cleanup;

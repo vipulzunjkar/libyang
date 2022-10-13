@@ -52,9 +52,9 @@ setup_ctx(void **state, int format, int flags)
 {
     //ly_verb(LY_LLVRB);
     if (format == LYS_IN_YANG){
-        (*state) = ly_ctx_new(SCHEMA_FOLDER_YANG, flags);
+        (*state) = ly_ctx_new_old(SCHEMA_FOLDER_YANG, flags);
     } else {
-        (*state) = ly_ctx_new(SCHEMA_FOLDER_YIN, flags);
+        (*state) = ly_ctx_new_old(SCHEMA_FOLDER_YIN, flags);
     }
     if (!(*state)) {
         return -1;

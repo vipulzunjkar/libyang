@@ -15,7 +15,7 @@ main(void)
     struct ly_ctx *ctx = NULL;
     struct lyd_node *data = NULL, *node;
 
-    ctx = ly_ctx_new(NULL, 0);
+    ctx = ly_ctx_new_old(NULL, 0);
     if (!ctx) {
         ret = 1;
         goto finish;

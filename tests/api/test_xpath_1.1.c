@@ -60,7 +60,7 @@ setup_f(void **state)
     }
 
     /* libyang context */
-    st->ctx = ly_ctx_new(schemadir, 0);
+    st->ctx = ly_ctx_new_old(schemadir, 0);
     if (!st->ctx) {
         fprintf(stderr, "Failed to create context.\n");
         goto error;

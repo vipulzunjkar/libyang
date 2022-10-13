@@ -34,7 +34,7 @@ Context::Context(ly_ctx *ctx, S_Deleter deleter):
     deleter(deleter)
 {};
 Context::Context(const char *search_dir, int options) {
-    ctx = ly_ctx_new(search_dir, options);
+    ctx = ly_ctx_new_old(search_dir, options);
     if (!ctx) {
         throw std::runtime_error("can not create new context");
     }

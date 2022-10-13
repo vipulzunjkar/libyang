@@ -1284,7 +1284,7 @@ cmd_clear(const char *arg)
         }
     } else {
 create_empty:
-        ctx_new = ly_ctx_new(NULL, options);
+        ctx_new = ly_ctx_new_old(NULL, options);
     }
 
     if (!ctx_new) {

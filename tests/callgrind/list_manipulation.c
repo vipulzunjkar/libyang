@@ -16,7 +16,7 @@ main(void)
     struct lyd_node *data1 = NULL, *data2 = NULL, *node;
     struct lyd_difflist *diff = NULL;
 
-    ctx = ly_ctx_new(NULL, 0);
+    ctx = ly_ctx_new_old(NULL, 0);
     if (!ctx) {
         ret = 1;
         goto finish;

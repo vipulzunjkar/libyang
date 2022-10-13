@@ -37,7 +37,7 @@ setup_ctx_yang(void **state)
 {
     (void)state;
 
-    ctx = ly_ctx_new(SCHEMA_FOLDER_YANG, 0);
+    ctx = ly_ctx_new_old(SCHEMA_FOLDER_YANG, 0);
     if (!ctx) {
         return -1;
     }

@@ -19,7 +19,7 @@ main(int argc, char **argv)
         return 1;
     }
 
-    ctx = ly_ctx_new(NULL, 0);
+    ctx = ly_ctx_new_old(NULL, 0);
     if (!ctx) {
         return 1;
     }

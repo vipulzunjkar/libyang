@@ -30,7 +30,7 @@ int main(int argc, char *argv[])
 	const struct lys_module *mod;
 
 	/* libyang context */
-        ctx = ly_ctx_new(NULL, 0);
+        ctx = ly_ctx_new_old(NULL, 0);
         if (!ctx) {
                 fprintf(stderr, "Failed to create context.\n");
                 return 1;
