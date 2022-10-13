@@ -250,7 +250,7 @@ main(int argc, char* argv[])
     }
     modstr = s;
 
-    ctx = ly_ctx_new(NULL, 0);
+    ctx = ly_ctx_new_old(NULL, 0);
     if (!ctx) {
         goto cleanup;
     }
